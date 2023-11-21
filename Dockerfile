@@ -1,20 +1,19 @@
-# Use the official Node.js image as the base  
-FROM node:18 
+# (1) Prepare build
 
-# Set the working directory inside the container  
-WORKDIR /app  
+FROM node:alpine as build
+WORKDIR /app
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-# Copy package.json and package-lock.json to the container  
-COPY package*.json ./  
+# (2) Create nginx
 
-# Install dependencies  
-RUN npm ci  
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
 
-# Copy the app source code to the container  
-COPY . .  
+RUN rm -rf ./*
+COPY --from=build /app/build .
 
-# Expose the port the app will run on  
-EXPOSE 3000  
-
-# Start the app  
-CMD ["npm", "start"]  
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
