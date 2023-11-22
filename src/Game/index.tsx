@@ -1,16 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import fly from './fly.png';
 import { useStore } from '../common/store';
 import { FlyModel } from '../model/fly.model';
 import { uuid } from '../common/uuid';
+import axios from 'axios';
+import { useQueryClient } from 'react-query';
 
 interface Props { }
 
 export const Game: React.FC<Props> = (props: Props) => {
+  const queryClient = useQueryClient()
+
   const createFly = useStore(state => state.createFly);
   const removeFly = useStore(state => state.removeFly);
   const flies = useStore(state => state.flies);
+
+  const onClick = useCallback(async (fly: FlyModel) => {
+    removeFly(fly);
+    
+    await axios({
+      method: 'POST',
+      url: '/api/game/smash-fly',
+      data: {
+        flyId: fly.id
+      }
+    });
+    
+    queryClient.invalidateQueries({ queryKey: ['score'] })
+  }, [queryClient, removeFly]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,7 +53,7 @@ export const Game: React.FC<Props> = (props: Props) => {
       {
         flies.map(fly => (
           <Fly
-          onClick={() => removeFly(fly)}
+            onClick={() => onClick(fly)}
             key={fly.id}
             style={{ top: fly.location.y, left: fly.location.x }}
           />
