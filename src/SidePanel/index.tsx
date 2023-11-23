@@ -8,6 +8,10 @@ interface Props { }
 export const SidePanel: React.FC<Props> = (props: Props) => {
   const { data, isLoading, error } = useQuery({ queryKey: ['score'], queryFn: () => getScore(), refetchInterval: 1000 })
 
+  if (isLoading || error) {
+    return null;
+  }
+
   return (
     <Card>
       <Title>Score</Title>

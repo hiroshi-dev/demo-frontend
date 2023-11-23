@@ -5,10 +5,10 @@
 Build:
 
 ```
-docker build -t hiroshi/demo-frontend .
+docker build -t dangoldstein3/smash-frontend:1.0.0 .
 ```
 
 Run:
 ```
-docker run --rm -p 3000:80 hiroshi/demo-frontend
+docker run --rm -p 3000:80 dangoldstein3/smash-frontend:1.0.0
 ```
